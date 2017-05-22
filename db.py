@@ -32,9 +32,12 @@ class Dao:
     """
     データベースアクセスオブジェクト
     """
-    def totalize(country_id: int):
+    def totalize(self, country_id: int):
+        """
+        集計処理
+        """
         db_connect = DatabaseConnect()
-        con, cur = db_connect.connect_db()
+        _, cur = db_connect.connect_db()
 
         query = "SELECT rank_id, count(*) AS count FROM players \
              where country_id = %s group by rank_id order by rank_id desc"

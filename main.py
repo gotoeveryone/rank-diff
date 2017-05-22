@@ -1,20 +1,19 @@
 """
 棋士一覧を抽出し、データベースの値と比較します。
 """
-import os
-import urllib
+import urllib.request
 import re
 from bs4 import BeautifulSoup
 from db import Dao
 
-BADUK_URL = 'http://www.baduk.or.kr/info/player_list.asp'
 PATTERN = re.compile('.*([0-9])dan.*')
 
 def baduk_diff():
     """
     韓国棋院所属棋士の差分抽出
     """
-    html = urllib.request.urlopen(os.environ.get('BADUK_URL'))
+    url = 'http://www.baduk.or.kr/info/player_list.asp'
+    html = urllib.request.urlopen(url)
     dom = BeautifulSoup(html, "html.parser")
 
     # 親コンテンツ
@@ -36,7 +35,7 @@ def baduk_diff():
         sites[rank_num] = count
 
     # データベース側
-    for data in Dao.totalize(2):
+    for data in Dao().totalize(2):
         site = sites[data.rank_id]
         if site != data.count:
             print("登録データと異なります。 %d - %d" % (site, data.count))
