@@ -17,7 +17,6 @@
 - DB_NAME
 - DB_USER
 - DB_PASSWORD
-- BADUK_URL
 
 2. 以下コマンドを実行してください。
 
