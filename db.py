@@ -39,8 +39,9 @@ class Dao:
         db_connect = DatabaseConnect()
         _, cur = db_connect.connect_db()
 
-        query = "SELECT rank_id, count(*) AS count FROM players \
-             where country_id = %s group by rank_id order by rank_id desc"
+        query = "SELECT rank_id, ranks.name as rank_name, count(*) AS count\
+            from players inner join ranks on players.rank_id = ranks.id \
+            where country_id = %s group by rank_id order by rank_id desc"
         cur.execute(query, country_id)
         rows = cur.fetchall()
         return [Rank(row) for row in rows]
