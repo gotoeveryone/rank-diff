@@ -41,7 +41,7 @@ class Dao:
 
         query = "SELECT rank_id, ranks.name as rank_name, count(*) AS count\
             from players inner join ranks on players.rank_id = ranks.id \
-            where country_id = %s group by rank_id order by rank_id desc"
+            where country_id = %s and is_retired = 0 group by rank_id order by rank_id desc"
         cur.execute(query, country_id)
         rows = cur.fetchall()
         return [Rank(row) for row in rows]
