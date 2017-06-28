@@ -4,12 +4,20 @@
 """
 import datetime
 import os
+from os.path import join, dirname
 import re
 import urllib.request
 from bs4 import BeautifulSoup
 from db import Dao
-from utils import LOGGER
+from dotenv import load_dotenv
 import utils
+
+# .envから環境変数を取得
+DOTENV_PATH = join(dirname(__file__), '.env')
+load_dotenv(DOTENV_PATH)
+
+# ロガー
+LOGGER = utils.get_logger()
 
 PATTERN = re.compile('.*([0-9])dan.*')
 PATTERN_TW = re.compile('.*dan0([0-9]).*')

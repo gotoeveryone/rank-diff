@@ -20,14 +20,14 @@ def get_logger():
     logging.basicConfig(level=log_level, format=log_format)
 
     # ファイル出力
-    handler = logging.StreamHandler(open('rank-diff.log', mode='a', encoding='utf-8'))
+    log_dir = os.environ.get('LOG_DIR', '')
+    handler = logging.StreamHandler(open(log_dir + 'rank-diff.log',\
+        mode='a', encoding='utf-8'))
     handler.setFormatter(logging.Formatter(log_format))
     logger = logging.getLogger()
     logger.addHandler(handler)
     logger.setLevel(log_level)
     return logger
-
-LOGGER = get_logger()
 
 def send_mail(start: datetime, to_address, subject: str, body: str):
     """
@@ -58,6 +58,7 @@ def send_mail(start: datetime, to_address, subject: str, body: str):
     msg['From'] = formataddr((str(Header(os.environ.get('MAIL_FROM_NAME'), "utf-8")), user))
     msg['To'] = ','.join(to_address)
 
+    logger = get_logger()
     try:
         smtp = smtplib.SMTP(host=os.environ.get('MAIL_HOST'),\
             port=os.environ.get('MAIL_PORT'))
@@ -67,11 +68,11 @@ def send_mail(start: datetime, to_address, subject: str, body: str):
         smtp.sendmail(os.environ.get('MAIL_FROM_ADDRESS'),\
             ','.join(to_address), msg.as_string())
         smtp.quit()
-        LOGGER.info("メールを送信しました。")
+        logger.info("メールを送信しました。")
         return True
-    except Exception as e:
-        LOGGER.exception("メール送信に失敗しました。例外の型【%s】, 詳細【%s】",\
-            type(e), str(e))
-        LOGGER.error("件名：%s", msg['Subject'])
-        LOGGER.error("本文：%s", body)
+    except smtplib.SMTPException as exception:
+        logger.exception("メール送信に失敗しました。例外の型【%s】, 詳細【%s】",\
+            type(exception), str(exception))
+        logger.error("件名：%s", msg['Subject'])
+        logger.error("本文：%s", body)
         return False
