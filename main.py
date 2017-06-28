@@ -19,10 +19,13 @@ load_dotenv(DOTENV_PATH)
 # ロガー
 LOGGER = utils.get_logger()
 
-PATTERN = re.compile('.*([0-9])dan.*')
+PATTERN_KR_RANK = re.compile('.*([0-9])dan.*')
+PATTERN_KR_COUNT = re.compile('.*\'([0-9]{1,2}).\'.*')
 PATTERN_TW = re.compile('.*dan0([0-9]).*')
 
-MESSAGES = []
+MESSAGES = [
+    'WEBと差分が発生しています。',
+]
 
 COUNTRIES = {
     1: '日本',
@@ -92,7 +95,7 @@ def taiwan_diff():
     # 差分確認
     notice_diff(4, sites)
 
-def baduk_diff():
+def korean_diff():
     """
     韓国棋院所属棋士の差分抽出
     """
@@ -111,14 +114,14 @@ def baduk_diff():
     sites = dict()
     for rank in content.select('.facetop'):
         img = rank.find('img').get('src')
-        rank_num = int(PATTERN.match(img).group(1))
+        rank_num = int(PATTERN_KR_RANK.match(img).group(1))
         if rank_num == 0:
             continue
 
         # 段位と棋士の数を取得
         table = rank.find_next('table')
-        count = len(table.find_all('td'))
-        sites[rank_num] = count
+        player_sum = table.find_next('script').get_text()
+        sites[rank_num] = int(PATTERN_KR_COUNT.match(player_sum).group(1))
 
     # 差分確認
     notice_diff(2, sites)
@@ -130,10 +133,11 @@ if __name__ == '__main__':
     try:
         START = datetime.datetime.now()
         taiwan_diff()
-        baduk_diff()
+        korean_diff()
 
         # メール送信
-        utils.send_mail(START, os.environ.get('MAIL_TO_ADDRESS'),\
-            '段位差異検出', '\n'.join(MESSAGES))
+        if bool(int(os.environ.get('MAIL_SEND'))):
+            utils.send_mail(START, os.environ.get('MAIL_TO_ADDRESS'),\
+                '段位差異検出', '\n'.join(MESSAGES))
     except Exception as ex:
         raise ex
