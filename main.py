@@ -46,6 +46,7 @@ def notice_diff(country_id: int, sites: dict):
         MESSAGES.append('')
 
     MESSAGES.append('%s' % (COUNTRIES[country_id]))
+    has_diff = False
     for data in Dao().totalize(country_id):
         site = sites[data.rank_id]
         if site != data.count:
@@ -54,10 +55,15 @@ def notice_diff(country_id: int, sites: dict):
                 data.rank_name, site, data.count
             )
             MESSAGES.append('　%s (Web: %d - DB: %d)' % (data.rank_name, site, data.count))
+            if not has_diff:
+                has_diff = True
+
+    return has_diff
 
 def taiwan_diff():
     """
     台湾棋院所属棋士の差分
+    :return bool 差分があればTrue
     """
     LOGGER.info('台湾棋院所属棋士の件数を確認します。')
 
@@ -93,11 +99,12 @@ def taiwan_diff():
         row_num += 3
 
     # 差分確認
-    notice_diff(4, sites)
+    return notice_diff(4, sites)
 
 def korean_diff():
     """
     韓国棋院所属棋士の差分抽出
+    :return bool 差分があればTrue
     """
     LOGGER.info('韓国棋院所属棋士の件数を確認します。')
 
@@ -124,7 +131,7 @@ def korean_diff():
         sites[rank_num] = int(PATTERN_KR_COUNT.match(player_sum).group(1))
 
     # 差分確認
-    notice_diff(2, sites)
+    return notice_diff(2, sites)
 
 if __name__ == '__main__':
     """
@@ -132,11 +139,11 @@ if __name__ == '__main__':
     """
     try:
         START = datetime.datetime.now()
-        taiwan_diff()
-        korean_diff()
+        TAIWAN_DIFF = taiwan_diff()
+        KOREAN_DIFF = korean_diff()
 
         # メール送信
-        if bool(int(os.environ.get('MAIL_SEND'))):
+        if (TAIWAN_DIFF or KOREAN_DIFF) and bool(int(os.environ.get('MAIL_SEND'))):
             utils.send_mail(START, os.environ.get('MAIL_TO_ADDRESS'),\
                 '段位差異検出', '\n'.join(MESSAGES))
     except Exception as ex:
