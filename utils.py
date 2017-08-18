@@ -1,6 +1,8 @@
+# -*- coding: utf-8 -*-
 """
 ユーティリティ
 """
+import codecs
 import logging
 import os
 import smtplib
@@ -21,7 +23,7 @@ def get_logger():
 
     # ファイル出力
     log_dir = os.environ.get('LOG_DIR', '')
-    handler = logging.StreamHandler(open(log_dir + 'rank-diff.log',\
+    handler = logging.StreamHandler(codecs.open(log_dir + 'rank-diff.log',\
         mode='a', encoding='utf-8'))
     handler.setFormatter(logging.Formatter(log_format))
     logger = logging.getLogger()
@@ -29,7 +31,7 @@ def get_logger():
     logger.setLevel(log_level)
     return logger
 
-def send_mail(start: datetime, to_address, subject: str, body: str):
+def send_mail(start, to_address, subject, body):
     """
     メール送信を行います。
     :param start datetime
@@ -45,7 +47,7 @@ def send_mail(start: datetime, to_address, subject: str, body: str):
     password = os.environ.get('MAIL_PASSWORD')
 
     # 本文にヘッダを付与
-    header = '開始時間：%s | 終了時間：%s\n\n' % \
+    header = u'開始時間：%s | 終了時間：%s\n\n' % \
         (start.strftime("%Y/%m/%d %H:%M:%S"), datetime.now().strftime("%Y/%m/%d %H:%M:%S"))
     body = header + body
 
@@ -53,9 +55,9 @@ def send_mail(start: datetime, to_address, subject: str, body: str):
     msg = MIMEText(body.encode("utf-8"), _charset="utf-8")
 
     # 件名、宛先
-    subject = '【自動通知】%s_%s' % (start.strftime('%Y%m%d'), subject)
+    subject = u'【自動通知】%s_%s' % (start.strftime('%Y%m%d'), subject)
     msg['Subject'] = subject
-    msg['From'] = formataddr((str(Header(os.environ.get('MAIL_FROM_NAME'), "utf-8")), user))
+    msg['From'] = formataddr((str(Header(unicode(os.environ.get('MAIL_FROM_NAME'), 'utf-8'), 'utf-8')), user))
     msg['To'] = ','.join(to_address)
 
     logger = get_logger()
@@ -68,11 +70,11 @@ def send_mail(start: datetime, to_address, subject: str, body: str):
         smtp.sendmail(os.environ.get('MAIL_FROM_ADDRESS'),\
             ','.join(to_address), msg.as_string())
         smtp.quit()
-        logger.info("メールを送信しました。")
+        logger.info(u'メールを送信しました。')
         return True
     except smtplib.SMTPException as exception:
-        logger.exception("メール送信に失敗しました。例外の型【%s】, 詳細【%s】",\
+        logger.exception(u'メール送信に失敗しました。例外の型【%s】, 詳細【%s】',\
             type(exception), str(exception))
-        logger.error("件名：%s", msg['Subject'])
-        logger.error("本文：%s", body)
+        logger.error(u'件名：%s', msg['Subject'])
+        logger.error(u'本文：%s', body)
         return False

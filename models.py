@@ -1,11 +1,12 @@
+# -*- coding: utf-8 -*-
 """
 モデル
 """
-class Rank():
+class Rank(object):
     """
     段位モデル
     """
-    def __init__(self, obj: dict):
+    def __init__(self, obj):
         self.rank_id = obj['rank_id']
         self.rank_name = obj['rank_name']
         self.count = obj['count']

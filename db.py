@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 データベース関連
 """
@@ -5,7 +6,7 @@ import os
 import pymysql
 from models import Rank
 
-class DatabaseConnect:
+class DatabaseConnect(object):
     """
     データベースへのアクセス情報
     """
@@ -29,11 +30,11 @@ class DatabaseConnect:
         __cur = __con.cursor()
         return __con, __cur
 
-class Dao:
+class Dao(object):
     """
     データベースアクセスオブジェクト
     """
-    def totalize(self, country_id: int):
+    def totalize(self, country_id):
         """
         集計処理
         """
