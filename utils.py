@@ -57,7 +57,7 @@ def send_mail(start, to_address, subject, body):
     # 件名、宛先
     subject = u'【自動通知】%s_%s' % (start.strftime('%Y%m%d'), subject)
     msg['Subject'] = subject
-    msg['From'] = formataddr((str(Header(unicode(os.environ.get('MAIL_FROM_NAME'), 'utf-8'), 'utf-8')), user))
+    msg['From'] = formataddr((str(Header(os.environ.get('MAIL_FROM_NAME'), 'utf-8')), user))
     msg['To'] = ','.join(to_address)
 
     logger = get_logger()
