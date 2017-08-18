@@ -10,6 +10,7 @@ class DatabaseConnect:
     データベースへのアクセス情報
     """
     def __init__(self):
+        self.host = os.environ.get("DB_HOST")
         self.name = os.environ.get("DB_NAME")
         self.user = os.environ.get("DB_USER")
         self.password = os.environ.get("DB_PASSWORD")
@@ -18,7 +19,7 @@ class DatabaseConnect:
         """Open Connection to girlfriend"""
 
         __con = pymysql.connect(
-            host='localhost',
+            host=self.host,
             db=self.name,
             user=self.user,
             passwd=self.password,
