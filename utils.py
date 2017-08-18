@@ -31,7 +31,7 @@ def get_logger():
     logger.setLevel(log_level)
     return logger
 
-def send_mail(start, to_address, subject, body):
+def send_mail(start, to_addresses, subject, body):
     """
     メール送信を行います。
     :param start datetime
@@ -40,8 +40,8 @@ def send_mail(start, to_address, subject, body):
     :param body str
     """
 
-    if isinstance(to_address, str):
-        to_address = [to_address]
+    if not hasattr(to_addresses, '__iter__'):
+        to_addresses = [to_addresses]
 
     user = os.environ.get('MAIL_USER')
     password = os.environ.get('MAIL_PASSWORD')
@@ -56,19 +56,23 @@ def send_mail(start, to_address, subject, body):
 
     # 件名、宛先
     subject = u'【自動通知】%s_%s' % (start.strftime('%Y%m%d'), subject)
+    to_str = ','.join(to_addresses)
+
+    # ヘッダ
     msg['Subject'] = subject
-    msg['From'] = formataddr((str(Header(os.environ.get('MAIL_FROM_NAME'), 'utf-8')), user))
-    msg['To'] = ','.join(to_address)
+    user_name = os.environ.get('MAIL_FROM_NAME').encode('utf-8')
+    msg['From'] = formataddr((str(Header(user_name, 'utf-8')), user))
+    msg['To'] = to_str
 
     logger = get_logger()
     try:
-        smtp = smtplib.SMTP(host=os.environ.get('MAIL_HOST'),\
-            port=os.environ.get('MAIL_PORT'))
+        host = os.environ.get('MAIL_HOST').encode('utf-8')
+        port = os.environ.get('MAIL_PORT').encode('utf-8')
+        smtp = smtplib.SMTP(host=host, port=port)
         smtp.ehlo()
         smtp.starttls()
         smtp.login(user, password)
-        smtp.sendmail(os.environ.get('MAIL_FROM_ADDRESS'),\
-            ','.join(to_address), msg.as_string())
+        smtp.sendmail(os.environ.get('MAIL_FROM_ADDRESS'), to_str, msg.as_string())
         smtp.quit()
         logger.info(u'メールを送信しました。')
         return True

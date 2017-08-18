@@ -144,7 +144,7 @@ if __name__ == '__main__':
 
         # メール送信
         if (TAIWAN_DIFF or KOREAN_DIFF) and bool(int(os.environ.get('MAIL_SEND'))):
-            utils.send_mail(START, os.environ.get('MAIL_TO_ADDRESS'),\
-                u'段位差異検出', '\n'.join(MESSAGES))
+            TO = os.environ.get('MAIL_TO_ADDRESS').encode('utf-8')
+            utils.send_mail(START, TO, u'段位差異検出', '\n'.join(MESSAGES))
     except Exception as ex:
         raise ex
