@@ -8,14 +8,30 @@
 
 以下がインストールされていること。
 
-- Python3.x
+- Python2.x
+
+## セットアップ
+
+```sh
+$ # virtualenvの設定
+$ pip install virtualenv
+$ virtualenv -p <python_path> ./venv
+$
+$ # パッケージの取得
+$ pip install -r requirements.txt
+$
+$ # 以下はOSによって異なります。
+$ # UNIX系
+$ . ./venv/bin/activate
+$ # Windows
+$ . .\venv\Scripts\activate
+```
 
 ## 実行
 
 1. ルートディレクトリの`.env.example`を`.env`にコピーし、環境に合わせて修正してください。
-2. 以下コマンドを実行してください（UNIX環境では`python3`、`pip3`など適宜読み替えてください）。
+2. 以下コマンドを実行してください。
 
-```
-$ pip install beautifulsoup4 python-dotenv
+```sh
 $ python main.py
 ```
